@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-from app.schemas.user import UserCreate, UserUpdate, UserOut, UserWithRoles, UserCreateWithPerson, UserListOut
+from app.schemas.person import ToggleActiveOut
+from app.schemas.user import UserCreate, UserCreateWithPerson, UserUpdate, UserOut, UserWithRoles, UserListOut
 from app.services.user_service import UserService
 from app.dependencies.db import get_db
 from app.dependencies.auth import get_current_user
@@ -28,6 +29,18 @@ def list_users_with_persons(
 @router.get("/", response_model=list[UserOut])
 def list_users(skip: int = 0, limit: int = 100, svc: UserService = Depends(get_service), _=Depends(get_current_user)):
     return svc.get_all(skip, limit)
+
+# users.py
+@router.patch(
+    "/{user_id}/toggle-active",
+    response_model=ToggleActiveOut,
+)
+async def toggle_user_active(
+    user_id: int,
+    svc: UserService = Depends(get_service),
+    _=Depends(get_current_user),
+):
+    return svc.toggle_active(user_id)
 
 
 @router.post("/", response_model=UserOut, status_code=status.HTTP_201_CREATED)

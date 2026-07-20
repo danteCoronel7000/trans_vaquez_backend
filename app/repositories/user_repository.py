@@ -2,18 +2,22 @@ from sqlalchemy.orm import Session, joinedload
 from app.models.user import User
 from app.models.role import Role
 from app.repositories.base import BaseRepository
+from sqlalchemy.orm import joinedload
+from app.models.person import Person
 
 
 class UserRepository(BaseRepository[User]):
     def __init__(self, db: Session):
         super().__init__(User, db)
 
+        # En UserRepository
+    def get_person_by_user_id(self, user_id: int) -> Person | None:
+        user = self.db.query(User).filter(User.id == user_id).first()
+        return user.person if user else None
+    
     def get_by_username(self, username: str) -> User | None:
         return self.db.query(User).filter(User.username == username).first()
 
-    def get_by_email(self, email: str) -> User | None:
-        return self.db.query(User).filter(User.email == email).first()
-    
         # ── Nuevo método ──────────────────────────────────
     def get_all_with_persons(
         self, skip: int = 0, limit: int = 100
@@ -44,3 +48,22 @@ class UserRepository(BaseRepository[User]):
             self.db.commit()
             self.db.refresh(user)
         return user
+    
+    # repositories/user_repository.py
+
+    def toggle_active(self, user_id: int) -> User:
+        user = self.get_by_id(user_id)  # ya existe en BaseRepository
+        user.is_active = not user.is_active
+        self.db.commit()
+        self.db.refresh(user)
+        return user
+    
+    def get_by_username_with_person(self, username: str) -> User | None:
+        return (
+            self.db.query(User)
+            .options(
+                joinedload(User.person).joinedload(Person.image)
+            )
+            .filter(User.username == username)
+            .first()
+        )

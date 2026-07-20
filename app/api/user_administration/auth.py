@@ -12,15 +12,22 @@ router = APIRouter()
 
 @router.post("/login", response_model=TokenResponse)
 def login(data: LoginRequest, db: Session = Depends(get_db)):
-    user = UserRepository(db).get_by_username(data.username)
+    repo = UserRepository(db)
+    user = repo.get_by_username_with_person(data.username)  # 👈 cambia esto
+
     if not user or not verify_password(data.password, user.password):
         raise UnauthorizedException("Credenciales incorrectas")
+
+    if not user.is_active:
+        raise UnauthorizedException("El usuario está deshabilitado")
+
     payload = {"sub": str(user.id)}
+
     return TokenResponse(
         access_token=create_access_token(payload),
         refresh_token=create_refresh_token(payload),
+        person=user.person,
     )
-
 
 @router.post("/refresh", response_model=TokenResponse)
 def refresh(data: RefreshRequest, db: Session = Depends(get_db)):

@@ -1,7 +1,9 @@
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
 from datetime import date, datetime
 from typing import Optional
 from app.models.person import GenderEnum
+from app.schemas.image import ImageOut
+from app.schemas.user import UserOut
 
 
 class PersonCreate(BaseModel):
@@ -10,11 +12,11 @@ class PersonCreate(BaseModel):
     ci:         str
     gender:     GenderEnum
     birth_date: date
+    gmail:      Optional[EmailStr] = None
     phone:      Optional[str] = None
     address:    Optional[str] = None
     city:       Optional[str] = None
     country:    Optional[str] = "Bolivia"
-    photo_url:  Optional[str] = None
 
 
 class PersonUpdate(BaseModel):
@@ -23,28 +25,29 @@ class PersonUpdate(BaseModel):
     ci:         Optional[str] = None
     gender:     Optional[GenderEnum] = None
     birth_date: Optional[date] = None
+    gmail:      Optional[EmailStr] = None
     phone:      Optional[str] = None
     address:    Optional[str] = None
     city:       Optional[str] = None
     country:    Optional[str] = None
-    photo_url:  Optional[str] = None
 
 
 class PersonOut(BaseModel):
     id:         int
-    user_id:    Optional[int] = None
     first_name: str
     last_name:  str
     ci:         str
     gender:     GenderEnum
     birth_date: date
+    gmail:      Optional[EmailStr] = None
     phone:      Optional[str]
     address:    Optional[str]
     city:       Optional[str]
     country:    Optional[str]
-    photo_url:  Optional[str]
     created_at: datetime
-    age:        int = 0   # campo calculado, no viene de la DB
+    age:        int = 0
+    image:      Optional[ImageOut] = None
+    user:       Optional[UserOut] = None  # ✅ user anidado en lugar de user_id
 
     model_config = {"from_attributes": True}
 
@@ -66,3 +69,10 @@ class PersonOut(BaseModel):
         self.age = today.year - self.birth_date.year - (
             (today.month, today.day) < (self.birth_date.month, self.birth_date.day)
         )
+
+ # schemas/user.py  (y lo mismo en schemas/person.py)
+class ToggleActiveOut(BaseModel):
+    id: int
+    is_active: bool
+
+    model_config = ConfigDict(from_attributes=True)
