@@ -12,7 +12,7 @@ class Image(Base):
         Integer,
         ForeignKey("persons.id", ondelete="CASCADE"),
         unique=True,   # unique=True garantiza la cardinalidad 1:1
-        nullable=False
+        nullable=True
     )
     name       = Column(String(255))          # nombre original del archivo
     image_url  = Column(String(500))          # URL pública de Cloudinary
@@ -22,3 +22,12 @@ class Image(Base):
 
     # Relación inversa hacia Person
     person = relationship("Person", back_populates="image")
+    camion_id = Column(
+    Integer,
+    ForeignKey("camiones.id", ondelete="CASCADE"),
+    unique=True,
+    nullable=True
+    )
+    
+    # Relación inversa hacia Camion
+    camion = relationship("Camion", back_populates="image")

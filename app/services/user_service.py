@@ -6,12 +6,17 @@ from app.schemas.user import UserCreate, UserCreateWithPerson, UserUpdate
 from app.models.user import User
 from app.core.security import hash_password
 from app.exceptions.http_exceptions import NotFoundException, ConflictException
+from app.repositories.user_system_repository import UserSystemRepository
+from app.models.user_system import UserSystem
 
+# Roles que crean registro en user_system
+SYSTEM_ROLES = {"ADMIN", "ENCARGADO", "DUEÑO"}
 
 class UserService:
     def __init__(self, db: Session):
         self.repo = UserRepository(db)
         self.role_repo = RoleRepository(db)
+        self.user_system_repo = UserSystemRepository(db)  # ✅ agregar
 
     def create(self, data: UserCreate) -> User:
         if self.repo.get_by_username(data.username):
@@ -41,21 +46,37 @@ class UserService:
         self.repo.delete(user)
 
     def assign_role(self, user_id: int, role_id: int) -> User:
-        user = self.get_by_id(user_id)  # Excepción 3: usuario no encontrado
-    
-        role = self.role_repo.get_by_id(role_id)
-        if not role:
-            raise NotFoundException("Rol no encontrado")
-    
-        # Excepción 4: rol deshabilitado
-        if not role.is_active:
-            raise ConflictException(f"El rol '{role.name}' está deshabilitado y no puede asignarse")
-    
-        # Excepción 1: rol ya asignado
-        if role in user.roles:
-            raise ConflictException(f"El rol '{role.name}' ya está asignado a este usuario")
-    
-        return self.repo.assign_role(user, role)
+           user = self.get_by_id(user_id)
+   
+           role = self.role_repo.get_by_id(role_id)
+           if not role:
+               raise NotFoundException("Rol no encontrado")
+   
+           if not role.is_active:
+               raise ConflictException(f"El rol '{role.name}' está deshabilitado y no puede asignarse")
+   
+           if role in user.roles:
+               raise ConflictException(f"El rol '{role.name}' ya está asignado a este usuario")
+   
+           # Asignar el rol
+           result = self.repo.assign_role(user, role)
+   
+           # Si el rol es de sistema y la persona no tiene ya un user_system, crearlo
+           if role.name.upper() in SYSTEM_ROLES:
+               person = user.person
+               if person:
+                   already_exists = self.user_system_repo.get_by_person_id(person.id)
+                   if not already_exists:
+                       # Verificar que ningún rol de sistema ya estaba asignado antes
+                       existing_system_roles = [
+                           r for r in user.roles
+                           if r.name.upper() in SYSTEM_ROLES and r.id != role_id
+                       ]
+                       if not existing_system_roles:
+                           user_system = UserSystem(person_id=person.id)
+                           self.user_system_repo.create(user_system)
+   
+           return result
     
     
     def remove_role(self, user_id: int, role_id: int) -> User:

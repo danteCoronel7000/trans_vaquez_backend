@@ -4,6 +4,13 @@ from app.core.database import Base, engine
 from fastapi.middleware.cors import CORSMiddleware
 from app.exceptions.handlers import register_exception_handlers
 from app.api.client_administration.clients import router as clients_router
+from app.api.chofer_administration.choferes import router as choferes_router
+from app.api.camion_administration.camiones import router as camiones_router
+from app.api.servicio_mecanico.talleres      import router as talleres_router
+from app.api.servicio_mecanico.tipos_servicio import router as tipos_servicio_router
+from app.api.servicio_mecanico.repuestos      import router as repuestos_router
+from app.api.servicio_mecanico.servicios      import router as servicios_router
+
 
 app = FastAPI(
     title="Transport API",
@@ -36,6 +43,20 @@ app.include_router(
     prefix="/api/client_administration/clients",
     tags=["clients"]
 )
+app.include_router(
+    choferes_router,
+    prefix="/api/chofer_administration/choferes",
+    tags=["choferes"]
+)
+app.include_router(
+    camiones_router,
+    prefix="/api/camion_administration/camiones",
+    tags=["camiones"]
+)
+app.include_router(talleres_router,       prefix="/api/servicio_mecanico/talleres",       tags=["talleres"])
+app.include_router(tipos_servicio_router, prefix="/api/servicio_mecanico/tipos_servicio", tags=["tipos_servicio"])
+app.include_router(repuestos_router,      prefix="/api/servicio_mecanico/repuestos",      tags=["repuestos"])
+app.include_router(servicios_router,      prefix="/api/servicio_mecanico/servicios",      tags=["servicios"])
 
 @app.get("/health")
 def health():

@@ -51,3 +51,6 @@ class Person(Base):
     )
     # Agregar dentro de la clase Person
     client = relationship("Client", back_populates="person", uselist=False)
+    # Agregar dentro de la clase Person
+    chofer = relationship("Chofer", back_populates="person", uselist=False)
+    user_system = relationship("UserSystem", back_populates="person", uselist=False)
