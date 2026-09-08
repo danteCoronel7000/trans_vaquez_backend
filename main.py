@@ -11,6 +11,14 @@ from app.api.servicio_mecanico.tipos_servicio import router as tipos_servicio_ro
 from app.api.servicio_mecanico.repuestos      import router as repuestos_router
 from app.api.servicio_mecanico.servicios      import router as servicios_router
 
+from app.api.ruta_administration.rutas import router as rutas_router
+from app.api.ruta_administration.puntos_peaje import router as puntos_peaje_router
+from app.api.ruta_administration.puntos_carga_combustible import router as puntos_carga_router
+from app.api.servicio_transporte.servicios import router as servicio_transporte_router
+from app.api.user_administration.user_system import router as user_system_router
+from app.api.servicio_transporte.ubicaciones import router as ubicaciones_router
+
+
 
 app = FastAPI(
     title="Transport API",
@@ -57,6 +65,25 @@ app.include_router(talleres_router,       prefix="/api/servicio_mecanico/tallere
 app.include_router(tipos_servicio_router, prefix="/api/servicio_mecanico/tipos_servicio", tags=["tipos_servicio"])
 app.include_router(repuestos_router,      prefix="/api/servicio_mecanico/repuestos",      tags=["repuestos"])
 app.include_router(servicios_router,      prefix="/api/servicio_mecanico/servicios",      tags=["servicios"])
+app.include_router(rutas_router,        prefix="/api/ruta_administration/rutas",         tags=["rutas"])
+app.include_router(puntos_peaje_router, prefix="/api/ruta_administration/puntos-peaje",  tags=["puntos_peaje"])
+app.include_router(puntos_carga_router, prefix="/api/ruta_administration/puntos-carga",  tags=["puntos_carga"])
+app.include_router(
+    servicio_transporte_router,
+    prefix="/api/servicio_transporte/servicios",
+    tags=["servicio_transporte"]
+)
+app.include_router(
+    user_system_router,
+    prefix="/api/user_administration/user-system",
+    tags=["user_system"]
+)
+
+app.include_router(
+    ubicaciones_router,
+    prefix="/api/servicio_transporte/servicios",
+    tags=["ubicacion_gps"]
+)
 
 @app.get("/health")
 def health():

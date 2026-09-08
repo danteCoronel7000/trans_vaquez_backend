@@ -31,3 +31,8 @@ class TipoServicioService:
     def delete(self, tipo_id: int) -> None:
         tipo = self.get_by_id(tipo_id)
         self.repo.delete(tipo)
+
+    def toggle_active(self, tipo_id: int) -> TipoServicio:
+        tipo = self.get_by_id(tipo_id)
+        tipo.is_active = not tipo.is_active
+        return self.repo.update(tipo)

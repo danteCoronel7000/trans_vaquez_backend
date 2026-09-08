@@ -11,6 +11,7 @@ from app.repositories.repuesto_repository import RepuestoRepository
 from app.schemas.servicio_mecanico import ServicioCreate, ServicioUpdate
 from app.schemas.detalle_repuesto import DetalleCreate, DetalleUpdate
 from app.exceptions.http_exceptions import NotFoundException
+from sqlalchemy import func
 
 
 class ServicioMecanicoService:
@@ -23,7 +24,11 @@ class ServicioMecanicoService:
         self.repuesto_repo = RepuestoRepository(db)
 
     def _recalcular_totales(self, servicio: ServicioMecanico) -> None:
-        subtotal = sum(d.subtotal for d in servicio.detalles)
+        subtotal = (
+            self.repo.db.query(func.coalesce(func.sum(DetalleRepuesto.subtotal), 0))
+            .filter(DetalleRepuesto.mantenimiento_id == servicio.id)
+            .scalar()
+        )
         servicio.subtotal_repuestos = subtotal
         servicio.total = subtotal + servicio.mano_obra
         self.repo.db.commit()

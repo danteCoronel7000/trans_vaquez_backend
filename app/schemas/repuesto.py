@@ -13,6 +13,7 @@ class RepuestoUpdate(BaseModel):
     marca:       str | None = None
     unidad:      str | None = None
     descripcion: str | None = None
+    is_active: bool | None = None
 
 
 class RepuestoOut(BaseModel):
@@ -21,5 +22,6 @@ class RepuestoOut(BaseModel):
     marca:       str | None
     unidad:      str
     descripcion: str | None
+    is_active: bool | None = None
 
     model_config = {"from_attributes": True}

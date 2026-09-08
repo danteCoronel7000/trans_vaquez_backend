@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy import Column, Integer, String, Text, Boolean, text
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -11,5 +11,5 @@ class Repuesto(Base):
     marca       = Column(String(100), nullable=True)
     unidad      = Column(String(30),  nullable=False)
     descripcion = Column(Text, nullable=True)
-
+    is_active   = Column(Boolean, nullable=False, server_default=text("true"))
     detalles = relationship("DetalleRepuesto", back_populates="repuesto")

@@ -9,11 +9,12 @@ class TipoServicioCreate(BaseModel):
 class TipoServicioUpdate(BaseModel):
     nombre:      str | None = None
     descripcion: str | None = None
-
+    is_active: bool | None = None
 
 class TipoServicioOut(BaseModel):
     id:          int
     nombre:      str
     descripcion: str | None
+    is_active: bool | None = None
 
     model_config = {"from_attributes": True}

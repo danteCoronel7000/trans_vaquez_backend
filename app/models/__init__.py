@@ -14,3 +14,11 @@ from app.models.tipo_servicio    import TipoServicio
 from app.models.repuesto         import Repuesto
 from app.models.servicio_mecanico import ServicioMecanico
 from app.models.detalle_repuesto  import DetalleRepuesto
+from app.models.ruta                      import Ruta
+from app.models.punto_peaje                import PuntoPeaje
+from app.models.punto_carga_combustible    import PuntoCargaCombustible
+from app.models.associations               import ruta_peajes, ruta_puntos_carga
+from app.models.servicio_transporte import ServicioTransporte
+from app.models.servicio_cliente     import ServicioCliente
+from app.models.informacion_carga    import InformacionCarga
+from app.models.ubicacion_gps import UbicacionGPS

@@ -55,3 +55,11 @@ def delete_repuesto(
     _=Depends(get_current_user),
 ):
     svc.delete(repuesto_id)
+
+@router.patch("/{repuesto_id}/toggle", response_model=RepuestoOut)
+def toggle_active(
+    repuesto_id: int,
+    svc: RepuestoService = Depends(get_service),
+    _=Depends(get_current_user),
+):
+    return svc.toggle_active(repuesto_id)

@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session, joinedload
 from app.models.servicio_mecanico import ServicioMecanico
+from app.models.detalle_repuesto import DetalleRepuesto
 from app.repositories.base import BaseRepository
 
 
@@ -13,7 +14,7 @@ class ServicioMecanicoRepository(BaseRepository[ServicioMecanico]):
             .options(
                 joinedload(ServicioMecanico.taller),
                 joinedload(ServicioMecanico.tipo_servicio),
-                joinedload(ServicioMecanico.detalles).joinedload("repuesto"),
+                joinedload(ServicioMecanico.detalles).joinedload(DetalleRepuesto.repuesto),
             )
             .offset(skip)
             .limit(limit)
@@ -26,7 +27,7 @@ class ServicioMecanicoRepository(BaseRepository[ServicioMecanico]):
             .options(
                 joinedload(ServicioMecanico.taller),
                 joinedload(ServicioMecanico.tipo_servicio),
-                joinedload(ServicioMecanico.detalles).joinedload("repuesto"),
+                joinedload(ServicioMecanico.detalles).joinedload(DetalleRepuesto.repuesto),
             )
             .filter(ServicioMecanico.id == servicio_id)
             .first()
@@ -38,7 +39,7 @@ class ServicioMecanicoRepository(BaseRepository[ServicioMecanico]):
             .options(
                 joinedload(ServicioMecanico.taller),
                 joinedload(ServicioMecanico.tipo_servicio),
-                joinedload(ServicioMecanico.detalles).joinedload("repuesto"),
+                joinedload(ServicioMecanico.detalles).joinedload(DetalleRepuesto.repuesto),
             )
             .filter(ServicioMecanico.camion_id == camion_id)
             .all()
