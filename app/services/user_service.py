@@ -1,4 +1,6 @@
 from sqlalchemy.orm import Session
+from app.models.client import Client
+from app.repositories.client_repository import ClientRepository
 from app.repositories.user_repository import UserRepository
 from app.repositories.role_repository import RoleRepository
 from app.repositories.person_repository import PersonRepository
@@ -17,6 +19,7 @@ class UserService:
         self.repo = UserRepository(db)
         self.role_repo = RoleRepository(db)
         self.user_system_repo = UserSystemRepository(db)  # ✅ agregar
+        self.client_repo      = ClientRepository(db) 
 
     def create(self, data: UserCreate) -> User:
         if self.repo.get_by_username(data.username):
@@ -46,37 +49,49 @@ class UserService:
         self.repo.delete(user)
 
     def assign_role(self, user_id: int, role_id: int) -> User:
-           user = self.get_by_id(user_id)
-   
-           role = self.role_repo.get_by_id(role_id)
-           if not role:
-               raise NotFoundException("Rol no encontrado")
-   
-           if not role.is_active:
-               raise ConflictException(f"El rol '{role.name}' está deshabilitado y no puede asignarse")
-   
-           if role in user.roles:
-               raise ConflictException(f"El rol '{role.name}' ya está asignado a este usuario")
-   
-           # Asignar el rol
-           result = self.repo.assign_role(user, role)
-   
-           # Si el rol es de sistema y la persona no tiene ya un user_system, crearlo
-           if role.name.upper() in SYSTEM_ROLES:
-               person = user.person
-               if person:
-                   already_exists = self.user_system_repo.get_by_person_id(person.id)
-                   if not already_exists:
-                       # Verificar que ningún rol de sistema ya estaba asignado antes
-                       existing_system_roles = [
-                           r for r in user.roles
-                           if r.name.upper() in SYSTEM_ROLES and r.id != role_id
-                       ]
-                       if not existing_system_roles:
-                           user_system = UserSystem(person_id=person.id)
-                           self.user_system_repo.create(user_system)
-   
-           return result
+        user = self.get_by_id(user_id)
+
+        role = self.role_repo.get_by_id(role_id)
+        if not role:
+            raise NotFoundException("Rol no encontrado")
+
+        if not role.is_active:
+            raise ConflictException(f"El rol '{role.name}' está deshabilitado y no puede asignarse")
+
+        if role in user.roles:
+            raise ConflictException(f"El rol '{role.name}' ya está asignado a este usuario")
+
+        # Asignar el rol
+        result = self.repo.assign_role(user, role)
+
+        # Si el rol es de sistema y la persona no tiene ya un user_system, crearlo
+        if role.name.upper() in SYSTEM_ROLES:
+            person = user.person
+            if person:
+                already_exists = self.user_system_repo.get_by_person_id(person.id)
+                if not already_exists:
+                    existing_system_roles = [
+                        r for r in user.roles
+                        if r.name.upper() in SYSTEM_ROLES and r.id != role_id
+                    ]
+                    if not existing_system_roles:
+                        user_system = UserSystem(person_id=person.id)
+                        self.user_system_repo.create(user_system)
+
+        # ✅ Si el rol es CLIENTE y la persona no tiene ya un client, crearlo
+        if role.name.upper() == "CLIENTE":
+            person = user.person
+            if person:
+                existing_client = self.client_repo.get_by_person_id(person.id)
+                if not existing_client:
+                    client = Client(
+                        person_id=person.id,
+                        nit=None,
+                        razon_social=None,
+                    )
+                    self.client_repo.create(client)
+
+        return result
     
     
     def remove_role(self, user_id: int, role_id: int) -> User:
