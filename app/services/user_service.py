@@ -107,7 +107,7 @@ class UserService:
                     )
                     self.chofer_repo.create(chofer)
 
-    
+        return result
     
     def remove_role(self, user_id: int, role_id: int) -> User:
         user = self.get_by_id(user_id)  # Excepción 3: usuario no encontrado

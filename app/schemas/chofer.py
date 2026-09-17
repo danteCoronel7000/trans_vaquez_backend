@@ -19,8 +19,8 @@ class ChoferUpdate(BaseModel):
 class ChoferOut(BaseModel):
     id:        int
     person_id: int
-    licencia:  str
-    categoria: CategoriaEnum
+    licencia:  str | None       # ✅ antes: str
+    categoria: CategoriaEnum | None   # ✅ antes: CategoriaEnum
     is_active: bool
     created_at: datetime
 
@@ -29,8 +29,8 @@ class ChoferOut(BaseModel):
 
 class ChoferDetailOut(BaseModel):
     id:        int
-    licencia:  str
-    categoria: CategoriaEnum
+    licencia:  str | None       # ✅ antes: str
+    categoria: CategoriaEnum | None   # ✅ antes: CategoriaEnum
     is_active: bool
     created_at: datetime
     person:    PersonOut
