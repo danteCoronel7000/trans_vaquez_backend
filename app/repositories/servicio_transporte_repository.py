@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.models.servicio_transporte import ServicioTransporte, EstadoServicioEnum
 from app.models.servicio_cliente import ServicioCliente
 from app.repositories.base import BaseRepository
-
+from app.models.client import Client
 
 class ServicioTransporteRepository(BaseRepository[ServicioTransporte]):
     def __init__(self, db: Session):
@@ -17,6 +17,9 @@ class ServicioTransporteRepository(BaseRepository[ServicioTransporte]):
                 joinedload(ServicioTransporte.camion),
                 joinedload(ServicioTransporte.servicios_cliente)
                     .joinedload(ServicioCliente.informaciones_carga),  # ✅ atributo de clase, no string
+                joinedload(ServicioTransporte.servicios_cliente)
+                .joinedload(ServicioCliente.cliente)
+                .joinedload(Client.person),   # ✅ agregar
             )
         )
 

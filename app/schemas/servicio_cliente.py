@@ -1,6 +1,7 @@
 from decimal import Decimal
 from pydantic import BaseModel
 from app.schemas.informacion_carga import InformacionCargaOut, InformacionCargaCreate
+from app.schemas.client import ClientDetailOut
 
 
 class ServicioClienteCreate(BaseModel):
@@ -37,5 +38,6 @@ class ServicioClienteOut(BaseModel):
     costo_total:            Decimal
     cliente:                ClienteResumenOut
     informaciones_carga:    list[InformacionCargaOut] = []
+    cliente:                ClientDetailOut
 
     model_config = {"from_attributes": True}

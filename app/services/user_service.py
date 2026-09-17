@@ -10,6 +10,8 @@ from app.core.security import hash_password
 from app.exceptions.http_exceptions import NotFoundException, ConflictException
 from app.repositories.user_system_repository import UserSystemRepository
 from app.models.user_system import UserSystem
+from app.repositories.chofer_repository import ChoferRepository
+from app.models.chofer import Chofer
 
 # Roles que crean registro en user_system
 SYSTEM_ROLES = {"ADMIN", "ENCARGADO", "DUEÑO"}
@@ -19,7 +21,8 @@ class UserService:
         self.repo = UserRepository(db)
         self.role_repo = RoleRepository(db)
         self.user_system_repo = UserSystemRepository(db)  # ✅ agregar
-        self.client_repo      = ClientRepository(db) 
+        self.client_repo      = ClientRepository(db)
+        self.chofer_repo      = ChoferRepository(db)
 
     def create(self, data: UserCreate) -> User:
         if self.repo.get_by_username(data.username):
@@ -61,10 +64,9 @@ class UserService:
         if role in user.roles:
             raise ConflictException(f"El rol '{role.name}' ya está asignado a este usuario")
 
-        # Asignar el rol
         result = self.repo.assign_role(user, role)
 
-        # Si el rol es de sistema y la persona no tiene ya un user_system, crearlo
+        # Roles de sistema → user_system
         if role.name.upper() in SYSTEM_ROLES:
             person = user.person
             if person:
@@ -78,7 +80,7 @@ class UserService:
                         user_system = UserSystem(person_id=person.id)
                         self.user_system_repo.create(user_system)
 
-        # ✅ Si el rol es CLIENTE y la persona no tiene ya un client, crearlo
+        # Rol CLIENTE → clients
         if role.name.upper() == "CLIENTE":
             person = user.person
             if person:
@@ -91,7 +93,20 @@ class UserService:
                     )
                     self.client_repo.create(client)
 
-        return result
+        # ✅ Rol CHOFER → choferes
+        if role.name.upper() == "CHOFER":
+            person = user.person
+            if person:
+                existing_chofer = self.chofer_repo.get_by_person_id(person.id)
+                if not existing_chofer:
+                    chofer = Chofer(
+                        person_id=person.id,
+                        licencia=None,
+                        categoria=None,
+                        is_active=True,
+                    )
+                    self.chofer_repo.create(chofer)
+
     
     
     def remove_role(self, user_id: int, role_id: int) -> User:

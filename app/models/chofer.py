@@ -22,8 +22,8 @@ class Chofer(Base):
         unique=True,
         nullable=False
     )
-    licencia   = Column(String(50), unique=True, nullable=False)
-    categoria  = Column(SAEnum(CategoriaEnum), nullable=False)
+    licencia   = Column(String(50), unique=True, nullable=True)   # ✅ antes False
+    categoria  = Column(SAEnum(CategoriaEnum), nullable=True)      # ✅ antes False
     is_active  = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
