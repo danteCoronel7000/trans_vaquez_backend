@@ -20,7 +20,7 @@ class UserService:
     def __init__(self, db: Session):
         self.repo = UserRepository(db)
         self.role_repo = RoleRepository(db)
-        self.user_system_repo = UserSystemRepository(db)  # ✅ agregar
+        self.user_system_repo = UserSystemRepository(db)  # agregar
         self.client_repo      = ClientRepository(db)
         self.chofer_repo      = ChoferRepository(db)
 
@@ -93,7 +93,7 @@ class UserService:
                     )
                     self.client_repo.create(client)
 
-        # ✅ Rol CHOFER → choferes
+        # Rol CHOFER → choferes
         if role.name.upper() == "CHOFER":
             person = user.person
             if person:
