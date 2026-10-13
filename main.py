@@ -17,6 +17,7 @@ from app.api.ruta_administration.puntos_carga_combustible import router as punto
 from app.api.servicio_transporte.servicios import router as servicio_transporte_router
 from app.api.user_administration.user_system import router as user_system_router
 from app.api.servicio_transporte.ubicaciones import router as ubicaciones_router
+from app.api.reportes.reportes import router as reportes_router
 
 
 
@@ -83,6 +84,12 @@ app.include_router(
     ubicaciones_router,
     prefix="/api/servicio_transporte/servicios",
     tags=["ubicacion_gps"]
+)
+
+app.include_router(
+    reportes_router,
+    prefix="/api/reportes",
+    tags=["reportes"]
 )
 
 @app.get("/health")

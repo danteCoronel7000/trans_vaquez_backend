@@ -16,6 +16,7 @@ from app.schemas.servicio_transporte import CamionResumenOut, ChoferResumenOut, 
 from app.schemas.servicio_cliente import ServicioClienteCreate, ServicioClienteUpdate
 from app.schemas.informacion_carga import InformacionCargaCreate, InformacionCargaUpdate
 from app.exceptions.http_exceptions import ForbiddenException, NotFoundException, ConflictException
+from datetime import datetime, timezone
 
 
 # Transiciones válidas de estado
@@ -252,6 +253,7 @@ class ServicioTransporteService:
         self.sc_repo.db.add(sc)
         self.sc_repo.db.commit()
         self.sc_repo.db.refresh(sc)
+        self._tocar_servicio(servicio)
         return self.get_by_id(servicio_id)
 
     def update_cliente(self, servicio_id: int, sc_id: int, data: ServicioClienteUpdate) -> ServicioTransporte:
@@ -265,6 +267,7 @@ class ServicioTransporteService:
         for field, value in data.model_dump(exclude_none=True).items():
             setattr(sc, field, value)
         self.sc_repo.db.commit()
+        self._tocar_servicio(servicio)
         return self.get_by_id(servicio_id)
 
     def remove_cliente(self, servicio_id: int, sc_id: int) -> ServicioTransporte:
@@ -277,6 +280,7 @@ class ServicioTransporteService:
 
         self.sc_repo.db.delete(sc)
         self.sc_repo.db.commit()
+        self._tocar_servicio(servicio)
         return self.get_by_id(servicio_id)
 
     # ── Gestión de informacion_carga ──────────────────────────
@@ -314,6 +318,7 @@ class ServicioTransporteService:
 
         sc = self.sc_repo.get_by_id(sc_id)
         self._recalcular_totales_cliente(sc)
+        self._tocar_servicio(servicio)
         return self.get_by_id(servicio_id)
 
     def update_carga(self, servicio_id: int, sc_id: int, carga_id: int, data: InformacionCargaUpdate) -> ServicioTransporte:
@@ -333,6 +338,7 @@ class ServicioTransporteService:
 
         sc = self.sc_repo.get_by_id(sc_id)
         self._recalcular_totales_cliente(sc)
+        self._tocar_servicio(servicio)
         return self.get_by_id(servicio_id)
 
     def remove_carga(self, servicio_id: int, sc_id: int, carga_id: int) -> ServicioTransporte:
@@ -348,6 +354,7 @@ class ServicioTransporteService:
 
         sc = self.sc_repo.get_by_id(sc_id)
         self._recalcular_totales_cliente(sc)
+        self._tocar_servicio(servicio)
         return self.get_by_id(servicio_id)
 
     def get_activo_por_usuario(self, current_user) -> ServicioTransporte:
@@ -390,3 +397,11 @@ class ServicioTransporteService:
             mi_carga = next(sc for sc in servicio.servicios_cliente if sc.id_cliente == cliente_id)
             resultado.append(self._construir_respuesta_cliente(servicio, mi_carga))
         return resultado
+
+    def _tocar_servicio(self, servicio: ServicioTransporte) -> None:
+        """Fuerza la actualización de fecha_actualizacion aunque no cambien
+        columnas propias de ServicioTransporte (por ejemplo, al modificar
+        sus clientes o líneas de carga hijas)."""
+        servicio.fecha_actualizacion = datetime.now(timezone.utc)
+        self.repo.db.commit()
+        self.repo.db.refresh(servicio)
