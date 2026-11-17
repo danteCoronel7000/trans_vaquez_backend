@@ -18,6 +18,7 @@ from app.api.servicio_transporte.servicios import router as servicio_transporte_
 from app.api.user_administration.user_system import router as user_system_router
 from app.api.servicio_transporte.ubicaciones import router as ubicaciones_router
 from app.api.reportes.reportes import router as reportes_router
+from app.api.reportes.informes import router as informes_router
 
 
 
@@ -90,6 +91,12 @@ app.include_router(
     reportes_router,
     prefix="/api/reportes",
     tags=["reportes"]
+)
+
+app.include_router(
+    informes_router,
+    prefix="/api/reportes/informes",
+    tags=["informes"]
 )
 
 @app.get("/health")
