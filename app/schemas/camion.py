@@ -58,3 +58,11 @@ class CamionOut(BaseModel):
     image:                         ImageOut | None = None
 
     model_config = {"from_attributes": True}
+
+class CamionResumenOut(BaseModel):
+    id:     int
+    placa:  str
+    marca:  str
+    modelo: str
+
+    model_config = {"from_attributes": True}

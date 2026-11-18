@@ -7,7 +7,12 @@ from app.schemas.ruta import RutaCreate, RutaUpdate
 from app.exceptions.http_exceptions import NotFoundException, ConflictException
 
 
+MSG_RUTA_EN_USO = (
+    "No se puede deshabilitar la ruta porque tiene servicios programados o en curso"
+)
+
 class RutaService:
+    
     def __init__(self, db: Session):
         self.repo             = RutaRepository(db)
         self.peaje_repo       = PuntoPeajeRepository(db)
@@ -26,20 +31,9 @@ class RutaService:
             raise NotFoundException("Ruta no encontrada")
         return ruta
 
-    def update(self, ruta_id: int, data: RutaUpdate) -> Ruta:
-        ruta = self.get_by_id(ruta_id)
-        for field, value in data.model_dump(exclude_none=True).items():
-            setattr(ruta, field, value)
-        return self.repo.update(ruta)
-
     def delete(self, ruta_id: int) -> None:
         ruta = self.get_by_id(ruta_id)
         self.repo.delete(ruta)
-
-    def toggle_active(self, ruta_id: int) -> Ruta:
-        ruta = self.get_by_id(ruta_id)
-        ruta.is_active = not ruta.is_active
-        return self.repo.update(ruta)
 
     # Gestión de peajes
     def assign_peaje(self, ruta_id: int, peaje_id: int) -> Ruta:
@@ -86,3 +80,18 @@ class RutaService:
         self.repo.db.commit()
         self.repo.db.refresh(ruta)
         return ruta
+    
+    def update(self, ruta_id: int, data: RutaUpdate) -> Ruta:
+        ruta = self.get_by_id(ruta_id)
+        if data.is_active is False and ruta.is_active and ruta.en_uso:
+            raise ConflictException(MSG_RUTA_EN_USO)
+        for field, value in data.model_dump(exclude_none=True).items():
+            setattr(ruta, field, value)
+        return self.repo.update(ruta)
+    
+    def toggle_active(self, ruta_id: int) -> Ruta:
+        ruta = self.get_by_id(ruta_id)
+        if ruta.is_active and ruta.en_uso:
+            raise ConflictException(MSG_RUTA_EN_USO)
+        ruta.is_active = not ruta.is_active
+        return self.repo.update(ruta)

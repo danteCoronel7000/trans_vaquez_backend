@@ -31,6 +31,7 @@ class RutaOut(BaseModel):
     tiempo_estimado: float | None
     tipo_de_via:     str | None
     is_active:       bool
+    en_uso:          bool = False  
     peajes:          list[PuntoPeajeOut] = []
     puntos_carga:    list[PuntoCargaOut] = []
 

@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from app.schemas.taller_mecanico import TallerOut
 from app.schemas.tipo_servicio import TipoServicioOut
 from app.schemas.detalle_repuesto import DetalleOut
+from app.schemas.camion import CamionResumenOut
 
 
 class ServicioCreate(BaseModel):
@@ -40,6 +41,7 @@ class ServicioOut(BaseModel):
     total:              Decimal
     observaciones:      str | None
     created_at:         datetime
+    camion:             CamionResumenOut  
     taller:             TallerOut
     tipo_servicio:      TipoServicioOut
     detalles:           list[DetalleOut] = []
