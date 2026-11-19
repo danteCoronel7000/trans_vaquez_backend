@@ -1,6 +1,12 @@
 from datetime import date, datetime
 from pydantic import BaseModel
 
+from pydantic import BaseModel, Field
+
+
+class FiltroInformeMensual(BaseModel):
+    anio: int = Field(ge=2000, le=2100)
+    mes:  int = Field(ge=1, le=12)
 
 class FiltroInformeSemanal(BaseModel):
     fecha_referencia: date      # cualquier día de la semana a consultar

@@ -31,3 +31,8 @@ class RepuestoService:
     def delete(self, repuesto_id: int) -> None:
         repuesto = self.get_by_id(repuesto_id)
         self.repo.delete(repuesto)
+
+    def toggle_active(self, repuesto_id: int) -> Repuesto:
+        repuesto = self.get_by_id(repuesto_id)
+        repuesto.is_active = not repuesto.is_active
+        return self.repo.update(repuesto)

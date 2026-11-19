@@ -1,3 +1,4 @@
+import calendar
 import math
 from collections import defaultdict
 from datetime import date, datetime, timedelta
@@ -93,6 +94,28 @@ class InformeService:
             inicio=inicio, fin=fin,
             ant_ini=inicio - timedelta(days=7), ant_fin=fin - timedelta(days=7),
             sig_ini=inicio + timedelta(days=7), sig_fin=fin + timedelta(days=7),
+            emitido_por=emitido_por,
+        )
+
+    @staticmethod
+    def rango_mes(anio: int, mes: int) -> tuple[date, date]:
+        ultimo = calendar.monthrange(anio, mes)[1]
+        return date(anio, mes, 1), date(anio, mes, ultimo)
+
+    def generar_mensual(self, anio: int, mes: int, emitido_por: str) -> InformeResponse:
+        inicio, fin = self.rango_mes(anio, mes)
+
+        ant_fin = inicio - timedelta(days=1)          # último día del mes anterior
+        ant_ini = ant_fin.replace(day=1)
+
+        sig_ini = fin + timedelta(days=1)             # primer día del mes siguiente
+        _, sig_fin = self.rango_mes(sig_ini.year, sig_ini.month)
+
+        return self._generar(
+            tipo="mensual",
+            inicio=inicio, fin=fin,
+            ant_ini=ant_ini, ant_fin=ant_fin,
+            sig_ini=sig_ini, sig_fin=sig_fin,
             emitido_por=emitido_por,
         )
 

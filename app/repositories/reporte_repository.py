@@ -1,10 +1,10 @@
 from datetime import date, datetime, time
+from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 from app.models.servicio_transporte import ServicioTransporte, EstadoServicioEnum
 from app.models.servicio_cliente import ServicioCliente
-from app.models.ubicacion_gps import UbicacionGPS
-from sqlalchemy import func
 from app.models.servicio_mecanico import ServicioMecanico
+from app.models.ubicacion_gps import UbicacionGPS
 from app.models.camion import Camion
 
 
